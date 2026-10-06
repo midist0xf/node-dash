@@ -5,12 +5,24 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/latest/meta-data/')
-      .then(async res => {
-        const text = await res.text()
-        setData(text || '(empty response)')
-      })
-      .catch(err => setError(err.message))
+    async function check() {
+      try {
+        const tokenRes = await fetch('/api/latest/api/token', {
+          method: 'PUT',
+          headers: { 'X-aws-ec2-metadata-token-ttl-seconds': '21600' },
+        })
+        const token = await tokenRes.text()
+
+        const metaRes = await fetch('/api/latest/meta-data/', {
+          headers: { 'X-aws-ec2-metadata-token': token },
+        })
+        const meta = await metaRes.text()
+        setData(`Token: ${token.slice(0, 20)}...\n\n${meta}`)
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : String(err))
+      }
+    }
+    check()
   }, [])
 
   return (
