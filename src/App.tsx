@@ -4,7 +4,7 @@ export default function App() {
   const [data, setData] = useState<string>('Loading...')
 
   useEffect(() => {
-    fetch('/api/')
+    fetch('/api/latest/meta-data/')
       .then(res => res.text())
       .then(setData)
       .catch(() => setData('Unavailable'))
